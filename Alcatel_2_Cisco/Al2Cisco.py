@@ -270,7 +270,8 @@ if alcatel_config_file.is_file():
 
     file.write("conf t\n")
 
-    for d in sorted(vlan_config, key=itemgetter('Vlan')):
+    for d in sorted(vlan_config, key=lambda r: (int(r['Vlan']))):
+    #for d in sorted(vlan_config, key=itemgetter('Vlan')):
 
         if switch_type == 'nexus':
             file.write("vlan " + d["Vlan"] + "\n")
@@ -297,13 +298,14 @@ if alcatel_config_file.is_file():
 
     print("\tCisco config file generated on: " + os.path.dirname(os.path.abspath(alcatel_config_file)))
     print("\tCisco config file name: cisco_config_" + os.path.basename(alcatel_config_file))
+    print()
 
     if nonlinear == 1:
         current_port = 1
         current_module = 1
 
-    for d in sorted(int_config, key=itemgetter('Port')):
-    #for d in int_config:
+    for d in sorted(int_config, key=lambda r: (int(r['Port'].split('/')[0]),int(r['Port'].split('/')[1]))):
+    #for d in sorted(int_config, key=itemgetter('Port')):
 
         if switch_type == 'nexus':
             int_type = "Ethernet"
@@ -315,9 +317,9 @@ if alcatel_config_file.is_file():
             if current_port == stack_ports: 
                 stack_members = stack_members + 1
                 current_port = 1
-            current_port = current_port + 1
             update = {'NewPort': str(current_module) + "/" + str(current_port) }
             d.update(update)
+            current_port = current_port + 1
 
         else:
             file.write("Interfece " + int_type + " " + d["Port"] + "\n")
@@ -346,17 +348,23 @@ if alcatel_config_file.is_file():
         cisco_cabling_file = os.path.dirname(os.path.abspath(alcatel_config_file)) + "/cabling_guide_" + os.path.basename(alcatel_config_file)
         file = open(cisco_cabling_file,'w')
         print()
-        print()
         print("\tNon linear migration detected. printing clabling guide")
         print()
         print("\tCabling guide generated on: " + os.path.dirname(os.path.abspath(alcatel_config_file)))
         print("\tCabling name: cabling_guide_" + os.path.basename(alcatel_config_file))
+        print()
+
         file.write("Cabling Guide for " + os.path.basename(alcatel_config_file) + "\n")
         file.write("\n")
         file.write("\tOld Switch:\t-->\tNew Switch\n")
-        for d in sorted(int_config, key=itemgetter('Port')):
+        #for d in sorted(int_config, key=itemgetter('Port')):
+        for d in sorted(int_config, key=lambda r: (int(r['NewPort'].split('/')[0]),int(r['NewPort'].split('/')[1]))):
             file.write("\t" + d["Port"] + "\t\t-->\t" + d["NewPort"]+"\n")
         file.close
+
+    #for d in sorted(int_config, key=lambda r: (int(r['Port'].split('/')[0]),int(r['Port'].split('/')[1]))):
+    #    print(d['Port'])
+
 
     del int_config[:]
     del vlan_config[:]
