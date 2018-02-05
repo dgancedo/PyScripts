@@ -8,16 +8,29 @@ import re
 from pathlib import Path
 from operator import itemgetter
 import inspect, os
+import colorama
+from colorama import Fore
+
+def print_red(message, end = '\n'):
+    sys.stderr.write('\x1b[1;31m' + message + '\x1b[0m' + end)
+def print_green(message, end = '\n'):
+        sys.stdout.write('\x1b[1;32m' + message + '\x1b[0m' + end)
+def print_yellow(message, end = '\n'):
+        sys.stderr.write('\x1b[1;33m' + message + '\x1b[0m' + end)
+def print_blue(message, end = '\n'):
+        sys.stdout.write('\x1b[1;34m' + message + '\x1b[0m' + end)
+def print_bold(message, end = '\n'):
+        sys.stdout.write('\x1b[1;37m' + message + '\x1b[0m' + end)
 
 def print_banner():
-    print("                  _  ___    _____  _                        ")         
-    print("           /\    | ||__ \  / ____|(_)                       ")
-    print("          /  \   | |   ) || |      _  ___   ___  ___        ")
-    print("         / /\ \  | |  / / | |     | |/ __| / __|/ _ \       ")
-    print("        / ____ \ | | / /_ | |____ | |\__ \| (__| (_) |      ")
-    print("       /_/    \_\|_||____| \_____||_||___/ \___|\___/       ")
-    print("                                                            ")
-    print("           == Alcatel to Cisco Migration Tool ==          \n")
+    print_blue("                  _  ___    _____  _                        ")       
+    print_blue("           /\    | ||__ \  / ____|(_)                       ")
+    print_blue("          /  \   | |   ) || |      _  ___   ___  ___        ")
+    print_blue("         / /\ \  | |  / / | |     | |/ __| / __|/ _ \       ")
+    print_blue("        / ____ \ | | / /_ | |____ | |\__ \| (__| (_) |      ")
+    print_blue("       /_/    \_\|_||____| \_____||_||___/ \___|\___/       ")
+    print_blue("                                                            ")
+    print_yellow("           == Alcatel to Cisco Migration Tool ==          \n")
 
 
 #default VLAN in Cisco
@@ -32,11 +45,11 @@ if args < 2:
     print("Usage: "+program_name+" [--nexus/--catalyst] (Ominisiwtch Config file)")
     print()
     print("Non lineal Option")
-    exit("Usage: "+program_name+" [--nexus/--catalyst] (Ominisiwtch Config file) --nonlinear (Stack_Members)(Numner of POrts)")
+    exit("Usage: "+program_name+" [--nexus/--catalyst] (Ominisiwtch Config file) --nonlinear (Stack_Members)(Numner of Ports)")
 
 if sys.argv[1] != '--nexus':
     if sys.argv[1] != '--catalyst':
-        print("First argument must be --nexus or --catalyst")
+        print_red("First argument must be --nexus or --catalyst")
         exit()
 
     else:
@@ -131,7 +144,7 @@ if alcatel_config_file.is_file():
 
             if len(vlan_member_port.split('/')) == 3:
                 if nonlinear == 0:
-                    print("\t\tPort naming style not supported in linear migration, you must use --nonlinear [stack members] [ports]") 
+                    print_red("\t\tPort naming style not supported in linear migration, you must use --nonlinear [stack members] [ports]") 
                     print()
                     print()
                     exit()
@@ -267,8 +280,10 @@ if alcatel_config_file.is_file():
             vlan_config.append(dict(dictionary)) 
 
     print("\tConfiguration resume:")
-    print("\t\tConfigured Vlans: " + str(len(vlan_config)))
-    print("\t\tConfigured Ports: " + str(len(int_config)))
+    print("\t\tConfigured Vlans: ", end='')
+    print_green(str(len(vlan_config)))
+    print("\t\tConfigured Ports: ", end='')
+    print_green(str(len(int_config)))
     print()
     
     cisco_config_file = os.path.dirname(os.path.abspath(alcatel_config_file)) + "/cisco_config_" + os.path.basename(alcatel_config_file)
@@ -302,8 +317,10 @@ if alcatel_config_file.is_file():
 
             file.write("\n")
 
-    print("\tCisco config file generated on: " + os.path.dirname(os.path.abspath(alcatel_config_file)))
-    print("\tCisco config file name: cisco_config_" + os.path.basename(alcatel_config_file))
+    print("\tCisco config file generated on: ", end='')
+    print_blue(os.path.dirname(os.path.abspath(alcatel_config_file)))
+    print("\tCisco config file name: cisco_config_", end='')
+    print_blue(os.path.basename(alcatel_config_file))
     print()
 
     if nonlinear == 1:
@@ -354,10 +371,12 @@ if alcatel_config_file.is_file():
         cisco_cabling_file = os.path.dirname(os.path.abspath(alcatel_config_file)) + "/cabling_guide_" + os.path.basename(alcatel_config_file)
         file = open(cisco_cabling_file,'w')
         print()
-        print("\tNon linear migration detected. printing clabling guide")
+        print_yellow("\tNon linear migration detected. printing clabling guide")
         print()
-        print("\tCabling guide generated on: " + os.path.dirname(os.path.abspath(alcatel_config_file)))
-        print("\tCabling name: cabling_guide_" + os.path.basename(alcatel_config_file))
+        print("\tCabling guide generated on: ", end='')
+        print_blue(os.path.dirname(os.path.abspath(alcatel_config_file))) 
+        print("\tCabling name: cabling_guide_", end='')
+        print_blue(os.path.basename(alcatel_config_file))
         print()
 
         file.write("Cabling Guide for " + os.path.basename(alcatel_config_file) + "\n")
@@ -366,11 +385,11 @@ if alcatel_config_file.is_file():
 
         for d in sorted(int_config, key=lambda r: (int(r['NewPort'].split('/')[0]),int(r['NewPort'].split('/')[1]))):
             file.write("\t" + d["Port"] + "\t\t-->\t" + d["NewPort"]+"\n")
-            
+
         file.close
 
     del int_config[:]
     del vlan_config[:]
     
 else:
-    print("The file "+sys.argv[2]+" Could not be opened")
+    print_red("The file "+sys.argv[2]+" Could not be opened")
