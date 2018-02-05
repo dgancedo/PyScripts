@@ -20,7 +20,7 @@ def print_banner():
     print("           == Alcatel to Cisco Migration Tool ==          \n")
 
 
-# VLAN default in Cisco
+#default VLAN in Cisco
 defaut_vlan = "1"
 
 print_banner()
@@ -33,12 +33,15 @@ if args < 2:
     print()
     print("Non lineal Option")
     exit("Usage: "+program_name+" [--nexus/--catalyst] (Ominisiwtch Config file) --nonlinear (Stack_Members)(Numner of POrts)")
+
 if sys.argv[1] != '--nexus':
     if sys.argv[1] != '--catalyst':
         print("First argument must be --nexus or --catalyst")
         exit()
+
     else:
         switch_type='catalyst'
+
 else:
     switch_type='nexus'
 
@@ -46,14 +49,19 @@ nonlinear = 0
 if args > 2:
     if sys.argv[3] == '--nonlinear':
         nonlinear = 1
+
         if args > 3:   
             stack_members=sys.argv[4]
+
         else:
             exit()
+
         if args > 4:
             stack_ports=sys.argv[5]
+
         else:
             exit()
+
     else:
         exit()
 
@@ -120,12 +128,14 @@ if alcatel_config_file.is_file():
             vlan_member_port = line.split(' ')[4]
             vlan_member_type = line.split(' ')[5]
             vlan_member_id = line.split(' ')[1]
+
             if len(vlan_member_port.split('/')) == 3:
                 if nonlinear == 0:
                     print("\t\tPort naming style not supported in linear migration, you must use --nonlinear [stack members] [ports]") 
                     print()
                     print()
                     exit()
+
                 if re.search('-', vlan_member_port):
                     port_switch=vlan_member_port.split('/')[-3]
                     port_module=vlan_member_port.split('/')[-2]
@@ -139,7 +149,6 @@ if alcatel_config_file.is_file():
                         for d in int_config:
 
                             if d["Port"] == vlan_member_port:
-
                                 if d["vlan_list"] is not '':                           
                                     vlan_member_id2 = d["vlan_list"] + ", " + vlan_member_id
                                     update= {'vlan_list': vlan_member_id2, 'vlan_type': vlan_member_type}
@@ -153,7 +162,6 @@ if alcatel_config_file.is_file():
                     for d in int_config:
 
                         if d["Port"] == vlan_member_port:
-
                             if d["vlan_list"] is not '':
                                 vlan_member_id = d["vlan_list"] + ", " + vlan_member_id
 
@@ -172,7 +180,6 @@ if alcatel_config_file.is_file():
                         for d in int_config:
 
                             if d["Port"] == vlan_member_port:
-
                                 if d["vlan_list"] is not '':                           
                                     vlan_member_id2 = d["vlan_list"] + ", " + vlan_member_id
                                     update= {'vlan_list': vlan_member_id2, 'vlan_type': vlan_member_type}
@@ -183,11 +190,8 @@ if alcatel_config_file.is_file():
                                 d.update(update)
 
                 else:
-
                     for d in int_config:
-
                         if d["Port"] == vlan_member_port:
-
                             if d["vlan_list"] is not '':
                                 vlan_member_id = d["vlan_list"] + ", " + vlan_member_id
 
@@ -198,15 +202,18 @@ if alcatel_config_file.is_file():
             vlan_member_port = line.split(' ')[3]
             vlan_member_type = "tagged"
             vlan_member_id = line.split(' ')[1]
+
             if any(d['Port'] == port for d in int_config):
                 for d in int_config:
                     if d['Port'] == vlan_member_port:
                         if d["vlan_list"] is not '':                           
                             vlan_member_id2 = d["vlan_list"] + ", " + vlan_member_id
                             update= {'vlan_list': vlan_member_id2, 'vlan_type': vlan_member_type}
+
                         else:
                         
                             update= {'vlan_list': vlan_member_id, 'vlan_type': vlan_member_type}
+
                         d.update(update)
             else:
                 dictionary = {'Port': port,'Description': '', 'Status': '', 'vlan_list': vlan_member_id, 'vlan_type': vlan_member_type}
@@ -234,7 +241,6 @@ if alcatel_config_file.is_file():
             vlan_name=line.split(' ')[3]
 
             for d in vlan_config:
-
                 if d["Vlan"] == vlan_id :
                     vlan_name = vlan_name.replace('"','')
                     vlan_name = vlan_name.replace(" ",'_')
@@ -243,23 +249,23 @@ if alcatel_config_file.is_file():
 
         if  re.search("^vlan \d{1,4} enable name", line):
             vlan_id=line.split(' ')[1]
+
             if len(line.split(' ')) > 5:
                 for i in range(4,len(line.split(' '))):
                     if 'vlan_name' in locals():
                         vlan_name=vlan_name + "_" + line.split(' ')[i]
+
                     else:
                         vlan_name=line.split(' ')[i]
+
             else:
                 vlan_name=line.split(' ')[4]
+
             vlan_name = vlan_name.replace('"','')
             vlan_name = vlan_name.replace(" ",'_')
             dictionary = {'Vlan': vlan_id,'Name': vlan_name, 'Status': 'enable' }
             vlan_config.append(dict(dictionary)) 
 
-
-    #pepe = list(filter(lambda x: x['Vlan'] == '520', vlan_config))
-    #pepe = list(filter(lambda x: x['Port'] == '1/20', int_config))
-    #print(pepe)
     print("\tConfiguration resume:")
     print("\t\tConfigured Vlans: " + str(len(vlan_config)))
     print("\t\tConfigured Ports: " + str(len(int_config)))
@@ -271,7 +277,6 @@ if alcatel_config_file.is_file():
     file.write("conf t\n")
 
     for d in sorted(vlan_config, key=lambda r: (int(r['Vlan']))):
-    #for d in sorted(vlan_config, key=itemgetter('Vlan')):
 
         if switch_type == 'nexus':
             file.write("vlan " + d["Vlan"] + "\n")
@@ -282,6 +287,7 @@ if alcatel_config_file.is_file():
 
             else:
                 file.write("  shutdown\n")
+
             file.write("!\n")
 
         else:
@@ -305,18 +311,19 @@ if alcatel_config_file.is_file():
         current_module = 1
 
     for d in sorted(int_config, key=lambda r: (int(r['Port'].split('/')[0]),int(r['Port'].split('/')[1]))):
-    #for d in sorted(int_config, key=itemgetter('Port')):
-
         if switch_type == 'nexus':
             int_type = "Ethernet"
+
         else:
             int_type = "GigabitEthernet"
 
         if nonlinear == 1:
             file.write("Interfece " + int_type + " " + str(current_module) + "/" + str(current_port)+ "\n")
+
             if current_port == stack_ports: 
                 stack_members = stack_members + 1
                 current_port = 1
+
             update = {'NewPort': str(current_module) + "/" + str(current_port) }
             d.update(update)
             current_port = current_port + 1
@@ -331,7 +338,6 @@ if alcatel_config_file.is_file():
             file.write("  switchport trunk allowed port vlan " + d["vlan_list"]+ "\n")
 
         else:
-
             if d["vlan_list"] == '':
                 file.write("  switchport mode access\n")
                 file.write("  siwtchport access vlan " + defaut_vlan + "\n")
@@ -357,14 +363,11 @@ if alcatel_config_file.is_file():
         file.write("Cabling Guide for " + os.path.basename(alcatel_config_file) + "\n")
         file.write("\n")
         file.write("\tOld Switch:\t-->\tNew Switch\n")
-        #for d in sorted(int_config, key=itemgetter('Port')):
+
         for d in sorted(int_config, key=lambda r: (int(r['NewPort'].split('/')[0]),int(r['NewPort'].split('/')[1]))):
             file.write("\t" + d["Port"] + "\t\t-->\t" + d["NewPort"]+"\n")
+            
         file.close
-
-    #for d in sorted(int_config, key=lambda r: (int(r['Port'].split('/')[0]),int(r['Port'].split('/')[1]))):
-    #    print(d['Port'])
-
 
     del int_config[:]
     del vlan_config[:]
