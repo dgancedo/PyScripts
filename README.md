@@ -1,4 +1,10 @@
 # PyScripts
-Welcome to my Python Scripts collection, the attempt of this site is to share some scripts that i've made and have some utility for me.
+Welcome to my Python Scripts collection, the attempt of this repository is to share some scripts that i've made and have some utility for me.
 
-Bienvenidos a mi coleccion de Scripts en Python.
+
+
+Alcatel_2_Cisco #Tools I've made to simplify the migration task from Alcatel OmniSwitches to Cisco
+
+
+
+
