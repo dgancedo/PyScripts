@@ -8,8 +8,7 @@ import re
 from pathlib import Path
 from operator import itemgetter
 import inspect, os
-import colorama
-from colorama import Fore
+
 
 def print_red(message, end = '\n'):
     sys.stderr.write('\x1b[1;31m' + message + '\x1b[0m' + end)
