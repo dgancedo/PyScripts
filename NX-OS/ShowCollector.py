@@ -4,7 +4,7 @@
 # Requirements: Netmiko
 ######
 
-import sys, getopt, os
+import sys, getopt, os, getpass
 from netmiko import ConnectHandler
 
 
@@ -16,16 +16,19 @@ def main(argv):
    try:
       opts, args = getopt.getopt(argv,"hi:o:",["user=","password=","switch=","command="])
    except getopt.GetoptError:
-      print('ShowCollector.py --user <username> --password <password> --switch <hosname|IP> --command <"command">')
+      print('ShowCollector.py --user <username> --password <ask|password> --switch <hostname|IP> --command <"command">')
       sys.exit(2)
    for opt, arg in opts:
       if opt == '-h':
-         print('ShowCollector --user <username> --password <password> --switch <hosname|IP> --command <"command">')
+         print('ShowCollector --user <username> --password <ask|password> --switch <hostname|IP> --command <"command">')
          sys.exit()
       elif opt in ("--user"):
          user = arg
       elif opt in ("--password"):
-         password = arg
+         if arg == 'ask':
+            password = getpass.getpass()
+         else:
+            password = arg
       elif opt in ("--switch"):
          switch = arg
       elif opt in ("--command"):
