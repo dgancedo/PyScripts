@@ -14,5 +14,3 @@ Also the script support the migration for the alcatel switches with the interfac
 python al2cisco.py [ --catalyst | --nexus ] /path/to/alcatel_config.file --nonlinear 2 48
 
 when nonlinear option is used a cabling guide is generated with the relation of the original port with the new one
-
-

@@ -87,6 +87,9 @@ if alcatel_config_file.is_file():
         line = line.strip('\n')
         line = line.strip('\t')
 
+        if re.search('vlan \d{1,4} mobile-tag enable', line):
+            voice_vlan = line.split(' ')[1]
+
         if re.search('interfaces port ', line):
             port = line.split(' ')[2]
             description = ''
@@ -345,7 +348,10 @@ if alcatel_config_file.is_file():
             current_port = current_port + 1
 
         else:
-            file.write("Interfece " + int_type + " " + d["Port"] + "\n")
+            if switch_type == 'nexus':
+                file.write("Interfece " + int_type + " " + d["Port"] + "\n")
+            else:
+                file.write("Interfece " + int_type + " " + d["Port"].replace("/","/0/") + "\n")
 
         file.write("  description \"" + d["Description"] + "\""+ "\n")
 
@@ -361,6 +367,8 @@ if alcatel_config_file.is_file():
             else:
                 file.write("  switchport mode access\n")
                 file.write("  siwtchport access vlan " + d["vlan_list"] + "\n")
+                if voice_vlan:
+                    file.write("  switchport voice vlan " + voice_vlan + "\n") 
                 
         file.write("  " + d["Status"]+ "\n")
         file.write("!\n")
