@@ -1,6 +1,0 @@
-#####
-#
-# NX-OS BASIC CONFIGURATION USING API
-#
-####
-
